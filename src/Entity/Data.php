@@ -156,4 +156,30 @@ class Data
 
         return $this;
     }
+
+    public function getValue()
+    {
+        if($this->getValueString())
+        {
+            return $this->getValueString();
+        }
+        else
+        {
+            return $this->getValueFloat();
+        }
+    }
+
+    public function setValue($value): self
+    {
+        if(is_numeric($value))
+        {
+            $this->setValueFloat($value);
+        }
+        else
+        {
+            $this->setValueString($value);
+        }
+
+        return $this;
+    }
 }

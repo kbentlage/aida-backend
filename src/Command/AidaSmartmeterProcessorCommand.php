@@ -2,26 +2,23 @@
 
 namespace App\Command;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Doctrine\ORM\EntityManagerInterface;
 use Wrep\Daemonizable\Command\EndlessContainerAwareCommand;
 
-use App\Entity\DeviceValue;
-use App\Entity\LogicalDevice;
-
-use App\Entity\Floor;
+use App\Service\DeviceService;
 
 class AidaSmartmeterProcessorCommand extends EndlessContainerAwareCommand
 {
     protected static $defaultName = 'app:aida-smartmeter-processor';
 
-    private $entityManager;
+    protected $em;
 
     public function __construct($name = null, EntityManagerInterface $entityManager)
     {
-        $this->entityManager = $entityManager;
+        $this->em = $entityManager;
 
         parent::__construct($name);
     }
@@ -94,90 +91,45 @@ class AidaSmartmeterProcessorCommand extends EndlessContainerAwareCommand
      */
     protected function onMessage($message)
     {
+        $deviceService = $this->getContainer()->get(DeviceService::class);
+
         $baseTopic = getenv('MQTT_TOPIC_SMARTMETER');
 
         switch($message->topic)
         {
             case $baseTopic.'/electricity/kwh-low':
-                $this->updateDeviceValue(1, 'kwh_low', $message->payload);
+                $deviceService->update(1, $message->payload);
                 break;
 
             case $baseTopic.'/electricity/kwh-high':
-                $this->updateDeviceValue(1, 'kwh_high', $message->payload);
+                $deviceService->update(2, $message->payload);
                 break;
 
             case $baseTopic.'/electricity/kwh-generated-low':
-                $this->updateDeviceValue(1, 'kwh_generated_low', $message->payload);
+                $deviceService->update(3, $message->payload);
                 break;
 
             case $baseTopic.'/electricity/kwh-generated-high':
-                $this->updateDeviceValue(1, 'kwh_generated_high', $message->payload);
+                $deviceService->update(4, $message->payload);
                 break;
 
             case $baseTopic.'/electricity/kwh-indicator':
-                $this->updateDeviceValue(1, 'kwh_indicator', $message->payload);
+                $deviceService->update(5, $message->payload);
                 break;
 
             case $baseTopic.'/electricity/current-watt':
-                $this->updateDeviceValue(1, 'watt', $message->payload);
+                $deviceService->update(6, $message->payload);
                 break;
 
             case $baseTopic.'/electricity/current-watt-generated':
-                $this->updateDeviceValue(1, 'watt_generated', $message->payload);
+                $deviceService->update(7, $message->payload);
                 break;
 
             case $baseTopic.'/gas/m3':
-                $this->updateDeviceValue(1, 'gas', $message->payload);
+                $deviceService->update(8, $message->payload);
                 break;
         }
-    }
 
-    /**
-     * Update Device Value
-     *
-     * @param $id
-     * @param $property
-     * @param $value
-     */
-    protected function updateDeviceValue($id, $property, $value)
-    {
-        // initialize repositories
-        $logicalDeviceRepository    = $this->getContainer()->get('doctrine')->getRepository(LogicalDevice::class);
-        $deviceValueRepository      = $this->getContainer()->get('doctrine')->getRepository(DeviceValue::class);
-
-        // find logical device
-        $logicalDevice = $logicalDeviceRepository->findOneByIdAndProperty($id, $property);
-
-        if($logicalDevice)
-        {
-            // get device value
-            $deviceValue = $deviceValueRepository->findOneByLogicalDeviceId($logicalDevice->getId());
-
-            // device has a current value
-            if($deviceValue)
-            {
-                // if new value is different than current one
-                if($deviceValue->getValue() != $value)
-                {
-                    $deviceValue->setValue($value);
-                    $deviceValue->setModifyDate(new \DateTime('now'));
-
-                    $this->entityManager->persist($deviceValue);
-                }
-            }
-            // device don't have a current value, create one
-            else
-            {
-                $newDeviceValue = new DeviceValue();
-
-                $newDeviceValue->setLogicalDeviceId($logicalDevice->getId());
-                $newDeviceValue->setValue($value);
-                $newDeviceValue->setCreateDate(new \DateTime('now'));
-
-                $this->entityManager->persist($newDeviceValue);
-            }
-
-            $this->entityManager->flush();
-        }
+        $this->em->flush();
     }
 }
