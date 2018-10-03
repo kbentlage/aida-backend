@@ -11,7 +11,7 @@ namespace App\Service;
 use Doctrine\ORM\EntityManagerInterface;
 
 use App\Entity\LogicalDevice;
-use App\Entity\DeviceValue;
+use App\Entity\Value;
 use App\Entity\Data;
 
 class DeviceService
@@ -38,38 +38,19 @@ class DeviceService
     {
         // initialize repositories
         $logicalDeviceRepository    = $this->em->getRepository(LogicalDevice::class);
-        $deviceValueRepository      = $this->em->getRepository(DeviceValue::class);
 
         // find logical device
         $logicalDevice = $logicalDeviceRepository->find($id);
 
         if($logicalDevice)
         {
-            // get device value
-            $deviceValue = $deviceValueRepository->findOneByLogicalDeviceId($logicalDevice->getId());
-
-            // device has a current value
-            if($deviceValue)
+            // if value is changed, update it
+            if($logicalDevice->getValue() != $value)
             {
-                // if new value is different than current one
-                if($deviceValue->getValue() != $value)
-                {
-                    $deviceValue->setValue($value);
-                    $deviceValue->setModifyDate(new \DateTime('now'));
+                $logicalDevice->setValue($value);
+                $logicalDevice->setValueDate(new \DateTime('now'));
 
-                    $this->em->persist($deviceValue);
-                }
-            }
-            // device don't have a current value, create one
-            else
-            {
-                $newDeviceValue = new DeviceValue();
-
-                $newDeviceValue->setLogicalDeviceId($logicalDevice->getId());
-                $newDeviceValue->setValue($value);
-                $newDeviceValue->setCreateDate(new \DateTime('now'));
-
-                $this->em->persist($newDeviceValue);
+                $this->em->persist($logicalDevice);
             }
 
             // if value should be saved as data
@@ -79,8 +60,6 @@ class DeviceService
 
                 $data->setLogicalDeviceId($logicalDevice->getId());
                 $data->setValue($value);
-                $data->setCreateDate(new \DateTime('now'));
-                $data->setModifyDate(new \DateTime('now'));
                 $data->setUpdates(1);
 
                 $this->em->persist($data);

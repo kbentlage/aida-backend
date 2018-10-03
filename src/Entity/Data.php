@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\DataRepository")
@@ -48,11 +49,13 @@ class Data
 
     /**
      * @ORM\Column(type="datetime")
+     * @Gedmo\Timestampable(on="create")
      */
     private $create_date;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Gedmo\Timestampable(on="update")
      */
     private $modify_date;
 
@@ -138,23 +141,9 @@ class Data
         return $this->create_date;
     }
 
-    public function setCreateDate(\DateTimeInterface $create_date): self
-    {
-        $this->create_date = $create_date;
-
-        return $this;
-    }
-
     public function getModifyDate(): ?\DateTimeInterface
     {
         return $this->modify_date;
-    }
-
-    public function setModifyDate(\DateTimeInterface $modify_date): self
-    {
-        $this->modify_date = $modify_date;
-
-        return $this;
     }
 
     public function getValue()

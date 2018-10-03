@@ -41,6 +41,21 @@ class LogicalDevice
      */
     private $dataSave;
 
+    /**
+     * @ORM\Column(type="float", nullable=true)
+     */
+    private $value_float;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $value_string;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $value_date;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -102,6 +117,68 @@ class LogicalDevice
     public function setDataSave(bool $dataSave): self
     {
         $this->dataSave = $dataSave;
+
+        return $this;
+    }
+
+    public function getValueFloat(): ?float
+    {
+        return $this->value_float;
+    }
+
+    public function setValueFloat(?float $value_float): self
+    {
+        $this->value_float = $value_float;
+
+        return $this;
+    }
+
+    public function getValueString(): ?string
+    {
+        return $this->value_string;
+    }
+
+    public function setValueString(?string $value_string): self
+    {
+        $this->value_string = $value_string;
+
+        return $this;
+    }
+
+    public function getValue()
+    {
+        if($this->getValueString())
+        {
+            return $this->getValueString();
+        }
+        else
+        {
+            return $this->getValueFloat();
+        }
+    }
+
+    public function setValue($value): self
+    {
+        if(is_numeric($value))
+        {
+            $this->setValueFloat($value);
+        }
+        else
+        {
+            $this->setValueString($value);
+        }
+
+        return $this;
+    }
+
+    public function getValueDate(): ?\DateTimeInterface
+    {
+        return $this->value_date;
+    }
+
+    public function setValueDate(?\DateTimeInterface $value_date): self
+    {
+        $this->value_date = $value_date;
 
         return $this;
     }
