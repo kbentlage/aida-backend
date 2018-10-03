@@ -48,7 +48,6 @@ class DeviceService
             if($logicalDevice->getValue() != $value)
             {
                 $logicalDevice->setValue($value);
-                $logicalDevice->setValueDate(new \DateTime('now'));
 
                 $this->em->persist($logicalDevice);
             }

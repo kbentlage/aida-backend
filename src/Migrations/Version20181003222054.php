@@ -15,7 +15,7 @@ final class Version20181003222054 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE logical_device ADD value_date DATETIME DEFAULT NULL AFTER value_string');
+        $this->addSql('ALTER TABLE logical_device ADD value_change_date DATETIME DEFAULT NULL AFTER value_string');
     }
 
     public function down(Schema $schema) : void

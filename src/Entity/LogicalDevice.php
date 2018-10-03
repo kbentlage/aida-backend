@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\LogicalDeviceRepository")
@@ -53,8 +54,9 @@ class LogicalDevice
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
+     * @Gedmo\Timestampable(on="change", field={"value_float", "value_string"})
      */
-    private $value_date;
+    private $value_change_date;
 
     public function getId(): ?int
     {
@@ -171,15 +173,8 @@ class LogicalDevice
         return $this;
     }
 
-    public function getValueDate(): ?\DateTimeInterface
+    public function getValueChangeDate(): ?\DateTimeInterface
     {
-        return $this->value_date;
-    }
-
-    public function setValueDate(?\DateTimeInterface $value_date): self
-    {
-        $this->value_date = $value_date;
-
-        return $this;
+        return $this->value_change_date;
     }
 }
