@@ -36,6 +36,11 @@ class LogicalDevice
      */
     private $enabled;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $dataSave;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -85,6 +90,18 @@ class LogicalDevice
     public function setEnabled(bool $enabled): self
     {
         $this->enabled = $enabled;
+
+        return $this;
+    }
+
+    public function getDataSave(): ?bool
+    {
+        return $this->dataSave;
+    }
+
+    public function setDataSave(bool $dataSave): self
+    {
+        $this->dataSave = $dataSave;
 
         return $this;
     }
