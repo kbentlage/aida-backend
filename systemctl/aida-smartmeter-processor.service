@@ -1,0 +1,11 @@
+[Unit]
+Description=Aida Smartmeter Processor
+After=multi-user.target
+
+[Service]
+User=pi
+Restart=always
+ExecStart=/opt/aida-backend/bin/console app:aida-smartmeter-processor
+
+[Install]
+WantedBy=multi-user.target
